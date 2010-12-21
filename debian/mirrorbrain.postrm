@@ -1,0 +1,22 @@
+#! /bin/sh
+
+# Abort if any command returns an error value
+set -e
+
+case "$1" in
+  remove)
+		userdel -r mirrorbrain
+    :
+    ;;
+  purge | disappear | upgrade | failed-upgrade | abort-upgrade | abort-install)
+    # abort-install covered here as we're covering stuff that happens in post-install,
+    # so that should never have been executed
+    :
+    ;;
+  *) echo "$0: didn't understand being called with \`$1'" 1>&2
+     exit 1;;
+esac
+
+#DEBHELPER#
+
+exit 0
