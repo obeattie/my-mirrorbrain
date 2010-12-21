@@ -1,0 +1,91 @@
+Source: mirrorbrain
+Section: web
+Priority: extra
+Maintainer: Peter Poeml <poeml@cmdline.net>
+Standards-Version: 3.5.7
+Build-Depends: debhelper (> 4), 
+ apache2-prefork-dev (>= 2.2.3-1) | apache2-threaded-dev (>= 2.2.3-1), 
+ libgeoip-dev, libapache2-mod-form-dev,
+ python-support (>= 0.6.4), python-setuptools (>= 0.6b3-1~), python-all-dev (>= 2.3.5-11)
+# we _would_ support Python 2.6, but the SQLObject module on Ubuntu 9.04 gives a deprecation warning with Python 2.6...
+# see http://mirrorbrain.org/issues/issue6
+XS-Python-Version: >= 2.4
+
+Package: mirrorbrain
+Architecture: any
+Depends: ${shlibs:depends}, adduser
+Description: MirrorBrain is a scalable download redirector and Metalink generator.
+ .
+ MirrorBrain is an open source framework to run a content delivery network using
+ mirror servers. It solves a challenge that many popular open source projects
+ face - a flood of download requests, often magnitudes more than a single site
+ could practically handle.
+ .
+ A central (and probably the most obvious) part is a "download redirector" which
+ automatically redirects requests from web browsers or download programs to a
+ mirror server near them.
+ .
+ Choosing a suitable mirror for a users request is the key, and MirrorBrain uses
+ geolocation and global routing data to make a sensible choice, and achieve
+ load-balancing for the mirrors at the same time. The used algorithm is both
+ sophisticated and easy to control and tune. In addition, MirrorBrain monitors
+ mirrors, scans them for files, generates mirror lists, and more.
+ .
+ This package contains files needed by the subpackges, documentation, and the
+ database schema.
+
+Package: libapache2-mod-mirrorbrain
+Architecture: any
+Depends: ${shlibs:depends}, apache2.2-common, libapache2-mod-form, libapache2-mod-geoip, libgeoip-dev, libaprutil1-dbd-pgsql
+Description: MirrorBrain is a scalable download redirector and Metalink generator.
+ .
+ This package contains mod_mirrorbrain, the Apache module which represents the
+ core of MirrorBrain.
+
+Package: libapache2-mod-autoindex-mb
+Architecture: any
+Depends: ${shlibs:depends}, apache2.2-common, libapache2-mod-mirrorbrain
+Description: MirrorBrain is a scalable download redirector and Metalink generator.
+ .
+ This package contains mod_autoindex_mb, which is a patched mod_autoindex. It
+ adds a little further capability as index option.
+ .
+ It adds these two options:
+ . 
+         <IfModule mod_autoindex_mb.c>
+             IndexOptions Metalink
+             IndexOptions Mirrorlist
+         </IfModule>
+ The Metalink option adds a link named "Metalink" to the index, which links to
+ the same file but with ".metalink" appended.
+ .
+ The MirrorList option adds a link named "Mirrors" to the index, which links to
+ the same resources but with "?mirrorlist" appended.
+
+Package: mirrorbrain-tools
+Architecture: any
+Depends: ${python:Depends}, python-psycopg2, python-sqlobject, geoip-bin, python-cmdln, python-mb (>=2.13.0)
+Description: MirrorBrain is a scalable download redirector and Metalink generator.
+ .
+ This package contains the commandline tools provided by the MirrorBrain
+ framework to maintain the database and scan mirrors.
+
+Package: python-mb
+Architecture: any
+# the dependency on python2.5 is added here due to http://mirrorbrain.org/issues/issue6
+Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
+# python-processing is no longer a package on e.g. Ubuntu 10.04, and not needed, since 
+# the multiprocessing module is on board
+Recommends: python-processing
+Provides: ${python:Provides}
+Breaks: mirrorbrain-tools (<<2.13.0)
+Replaces: mirrorbrain-tools (<<2.13.0)
+XB-Python-Version: ${python:Versions}
+Description: a Python module for easily maintaining MirrorBrain 
+
+Package: mirrorbrain-scanner
+Architecture: any
+Depends: libconfig-inifiles-perl, libwww-perl, libdbd-pg-perl, libdatetime-perl, libtimedate-perl, libdigest-md4-perl
+Description: MirrorBrain is a scalable download redirector and Metalink generator.
+ .
+ This package contains the mirror scanner.

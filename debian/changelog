@@ -1,0 +1,448 @@
+mirrorbrain (2.15.0-1) stable; urgency=low
+
+  - update to 2.15.0 (r8232):
+    http://mirrorbrain.org/docs/changes/#release-2-15-0-r8232-nov-13-2010
+    - support for generating Yum-style mirror lists
+    - scanning Nginx directory listings
+    - bugfixes and improvements in the scanner
+    - extensive directions on tuning PostgreSQL for MirrorBrain
+
+ -- Peter Poeml <poeml@cmdline.net>  Sun, 14 Nov 2010 18:50:00 +0100
+
+mirrorbrain (2.14.0-3) stable; urgency=low
+
+  - 2nd attempt of linking the math library, to fix unresolved symbol "sqrt" in
+    mod_mirrorbrain.so.
+
+ -- Peter Poeml <poeml@cmdline.net>  Sat,  6 Nov 2010 06:59:00 +0100
+
+mirrorbrain (2.14.0-2) stable; urgency=low
+
+  - linking the math library, to fix unresolved symbol "sqrt" in
+    mod_mirrorbrain.so.
+
+ -- Peter Poeml <poeml@cmdline.net>  Sat,  6 Nov 2010 06:22:00 +0100
+
+mirrorbrain (2.14.0-1) stable; urgency=low
+
+  - update to 2.14.0 (r8210):
+    http://mirrorbrain.org/docs/changes/#release-2-14-0-r8210-nov-6-2010
+    - If the “GeoLite City” GeoIP database is used, MirrorBrain now uses 
+      geographical distance as additional criterion to improve mirror selection
+      in difficult cases (issue #34).
+    - Per-file mirror lists are more readable and embed a link to a Google map 
+      with mirrors.
+    - When running behind a load balancer or other reverse proxy, prefix 
+      detection (for containment in network prefixes of mirrors) did not work.
+    - Experimental support for restricted downloads. See release notes.
+    - Running behind authentication (e.g. Basic) is now supported.
+    - zsync 0.6.2 compatibility has been tested.
+    - Small code optimizations and cleanups.
+    Upgrade notes: http://mirrorbrain.org/docs/upgrading/#to-2-14-0
+
+ -- Peter Poeml <poeml@cmdline.net>  Sat,  6 Nov 2010 05:09:00 +0100
+
+mirrorbrain (2.13.4-1) stable; urgency=low
+
+  - update to 2.13.4 (r8188):
+    See http://mirrorbrain.org/docs/changes/#release-2-13-4-r8188-oct-19-2010
+    mb scan:
+    - The output of the scanner has been improved, by introducing a -q|--quiet
+      option. Used once, only a summary line per scanned mirror will be shown. Used
+      twice, no output will be produced except errors.
+    - When a scan via rsync ran into a timeout, the name of the affected mirror was
+      not reported. The error message was only “rsync timeout”, and while there
+      normally were other messages giving a hint, output is now improved to include
+      the mirror identifier.
+    - When enabling a mirror after successful scanning, the scanner now makes sure
+      that the mirror is not only marked “enabled” but also marked being “online”.
+      Mirrors are normally marked online by the mirrorprobe (which is typically run
+      once per minute), but it is much more logical when a mirror is really
+      directly available after scanning with --enable.
+    mb scan & mirrorprobe:
+    - There was a case of a quirky web server software that ignores requests
+      without Accept header. The mirrorprobe and the scanner now send an Accept
+      header with value ‘/‘, because sending this header in general should not
+      harm.
+    geoip-lite-update:
+    - This script now works on Ubuntu. It no longer relies on a command named ftp
+      being capable of doing HTTP downloads, and prefers curl or wget if available.
+    - The script is quiet now, producing no output if no error is encountered.
+    Documentation was extended and enhanced.
+
+ -- Peter Poeml <poeml@cmdline.net>  Tue, 19 Oct 2010 18:42:00 +0100
+
+mirrorbrain (2.13.3-1) stable; urgency=low
+
+  - update to 2.13.3 (r8166):
+    See http://mirrorbrain.org/docs/changes/#release-2-13-3-r8166-sep-26-2010
+    - The Magnet links embedded in Metalinks could cause the Metalink client
+      aria2c to wait a long time on P2P connections, and not try the listed
+      mirrors anymore (issue #73). These links are no longer included at the
+      moment, unless MirrorBrainMetalinkMagnetLinks On is set in the Apache
+      configuration.
+    - Under certain conditions (transparent negotiation of metalinks),
+      mod_mirrorbrain could deliver a file 'foo' when 'foo.bar' was requested but
+      didnt exist. Found and fixed by Michael Schröder and closing issue #75.
+    - When generating Torrents, the order of keys was not obeyed, which should be
+      lexicographical. This is now the case, so the Torrents should be valid also
+      for clients that insist on correct ordering. This should improve the
+      compatibility to some clients, notably rtorrent. Tracked in issue 74 and
+      issue 78.
+    - The MD5 sum in Torrent info hashes was wrongly sent in binary form, instead
+      of being hex-encoded. In addition, the key was wrongly named md5 while
+      md5sum is the correct name. Fixing issue 77.
+    - Not a bugfix, but a hopefully useful addition is that Torrents now contain
+      a “created by” key, indicating the generator of the torrent, and the
+      version number (e.g. MirrorBrain/2.13.3). Suggested in issue 65.
+
+ -- Peter Poeml <poeml@cmdline.net>  Sun, 26 Sep 2010 03:39:00 +0100
+
+mirrorbrain (2.13.2-1) stable; urgency=low
+
+  - update to 2.13.2 (r8153):
+    See http://mirrorbrain.org/docs/changes/#release-2-13-1-r8136-sep-18-2010
+    mod_mirrorbrain:  
+    - The content of the mirror lists (details pages) are now wrapped into a
+      XHTML/HTML DIV container with id="mirrorbrain-details". This improves the
+      possibilities for styling in conjunction with a stylesheet linked in via
+      the MirrorBrainMirrorlistStyleSheet directive (issue #63).
+    - Further individual design can now be achieved by specifying the XHTML/HTML
+      header and footer which are placed around the page body instead of the
+      built-in XHTML (issue #63). This is configured with two new Apache
+      configuration directives.
+    - Hashes can now be requested without a filename being included in the
+      response, to simplify parsing (issue #68). This is done by sending the
+      query string only_hash. This works with different ways to request a hash:
+          http://host.example.com/foo.md5?only_hash
+          http://host.example.com/foo?md5&only_hash
+    - The filename in hashes can also be suppressed site-wide (and therewith, on 
+      the server side) with a new Apache config directive
+      MirrorBrainHashesSuppressFilenames On. It goes into virtualhost context.  
+    - When sending out a hash to a client (as requested by appending e.g. .md5),
+      there is now a double space between hash and filename – just like as the
+      familiar tools like md5sum and sha1sum do it. This should avoid confusion
+      and extra effort in parsing.
+    - The mirror list’s content type header now comes with UTF-8 as character set,
+      instead of ISO-8859-1, which should make more sense.
+    mb export –format=mirmon:
+    - update format (and documentation) for the current mirmon-2.3. (issue #62)
+
+ -- Peter Poeml <poeml@cmdline.net>  Sun, 19 Sep 2010 20:28:00 +0100
+
+mirrorbrain (2.13.1-1) stable; urgency=low
+
+  - update to 2.13.1 (r8136)
+    mb edit:
+    - Fix a regression in 2.13.0, which made it impossible to remove an URL by
+      setting it to an empty string. r8044 (fix for issue #30) was the culprit.
+    mb scan:
+    - Scanning lighttpd web servers is now supported. Thanks to patch contributed
+      by Phillip Smith. This fixes issue #60.
+    mb list/edit/show/...:
+    - In some situations, the fuzzy-matching on mirror identifiers made it impossible
+      to select certain mirrors. Phillip Smith not only reported this issue but
+      submitted a clever patch at the same time, which keeps the convenient behaviour
+      but also allows for selection mirrors by their full name. Fixing issue #61.
+
+ -- Peter Poeml <poeml@cmdline.net>  Sat, 18 Sep 2010 04:06:00 +0100
+
+mirrorbrain (2.13.0-11) stable; urgency=low
+
+  - improving last fix
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed,  8 Sep 2010 03:40:00 +0100
+
+mirrorbrain (2.13.0-10) stable; urgency=low
+
+  - expanding on the Ubuntu fix for issue 6. See comment
+    http://mirrorbrain.org/issues/msg236
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed,  8 Sep 2010 02:01:00 +0100
+
+mirrorbrain (2.13.0-9) stable; urgency=low
+
+  - Try to fix the little breakage that occured after moving /usr/bin/mb from
+    mirrorbrain-tools to python-mb on Debian/Ubuntu:
+    - mirrorbrain-tools:
+      Depends:python-mb (>=2.13.0)
+    - python-mb:
+      Breaks: mirrorbrain-tools (<<2.13.0)
+      Replaces: mirrorbrain-tools (<<2.13.0)
+  - The move of /usr/bin/mb from mirrorbrain-tools to python-mb wasn't done in
+    the RPMs yet
+
+ -- Peter Poeml <poeml@cmdline.net>  Tue,  7 Sep 2010 23:50:00 +0100
+
+mirrorbrain (2.13.0-8) stable; urgency=low
+
+  - user and group are now created automatically on installation
+  - /var/log/mirrorbrain is included in the package now
+
+ -- Peter Poeml <poeml@cmdline.net>  Tue,  7 Sep 2010 17:31:00 +0100
+
+mirrorbrain (2.13.0-8) stable; urgency=low
+
+  - update to (probably final) r8123
+  - rsyncinfo.py renamed to rsyncinfo
+  - install the bdecode tool
+
+ -- Peter Poeml <poeml@cmdline.net>  Mon,  6 Sep 2010 17:12:00 +0100
+
+mirrorbrain (2.13.0-6) stable; urgency=low
+
+  - update to r8115
+    - The module now works also when the path in the <Directory> contains
+      symlinks, fixing issue #17
+    - Further documentation updates
+
+ -- Peter Poeml <poeml@cmdline.net>  Mon,  6 Sep 2010 16:46:00 +0100
+
+mirrorbrain (2.13.0-4) stable; urgency=low
+
+  - Don't force Python 2.5 on Ubuntu 10.04
+    http://mirrorbrain.org/issues/issue6
+
+ -- Peter Poeml <poeml@cmdline.net>  Fri,  3 Sep 2010 00:27:00 +0100
+
+mirrorbrain (2.13.0-3) stable; urgency=low
+
+  - Another bugfix for Debian Lenny / older (1.2) Apache Runtime: the format
+    string %lld wasn't known yet at the time. So let's use APR_INT64_T_FMT
+    which is defined in any case (ld on 1.2, lld on 1.3 and later). This
+    fixes the mirror list and metalinks.
+
+ -- Peter Poeml <poeml@cmdline.net>  Thu,  2 Sep 2010 16:36:00 +0100
+
+mirrorbrain (2.13.0-2) stable; urgency=low
+
+  - Bugfix for Debian Lenny:
+    The old (1.2) Apache Runtime's PostgreSQL adapter didn't know the
+    APR_DBD_TYPE_LONGLONG (%lld) format string yet, and preparation of SQL
+    statements failed for this reason. This is fixed by using %d now with APR 1.2.
+
+ -- Peter Poeml <poeml@cmdline.net>  Thu,  2 Sep 2010 16:00:00 +0100
+
+mirrorbrain (2.13.0-1) stable; urgency=low
+
+  - update to 2.13.0.
+    (Release notes http://mirrorbrain.org/docs/changes/ w.i.p.)
+  - remove requirement on the metalink package. Hashing is now done with
+    Python/OpenSSL.
+  - drop obsolete patches mirrorbrain-2.12.0-issue52.patch and
+    mirrorbrain.diff (https://bugzilla.novell.com/show_bug.cgi?id=602434)
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed,  1 Sep 2010 14:46:00 +0100
+
+mirrorbrain (2.12.0-3) stable; urgency=low
+
+  - add patch mirrorbrain-2.12.0-issue52.patch for 
+    http://mirrorbrain.org/issues/issue52 (the match for client prefix/mirror 
+    prefix should check for containment, not string match)
+
+ -- Peter Poeml <poeml@cmdline.net>  Mon, 30 Aug 2010 13:31:00 +0100
+
+mirrorbrain (2.12.0-2) stable; urgency=low
+
+  - on Debian & Ubuntu, let the mirrorbrain-scanner package depend on the
+    libtimedate-perl package. Thanks Christophe Vandeplas from fosdem.org for
+    this fix.
+
+ -- Peter Poeml <poeml@cmdline.net>  Sun, 21 Feb 2010 16:46:00 +0100
+
+mirrorbrain (2.12.0-1) stable; urgency=low
+
+  - update to 2.12.0 (r7957)
+    This release contains several important bug fixes, a new feature, and
+    documentation fixes.
+    Details: http://mirrorbrain.org/docs/changes/#release-2-12-0-r7957-feb-10-2010
+    - store geographical coordinates in the mirror database records
+    - fix wrong hash filenames constructed by mod_mirrorbrain on Debian (issue 35)
+    - fix wrong URL type within Metalinks for FTP URLs (issue 23)
+    - fix wrong URLs printed by 'mb file ls -u' (issue 36)
+    - removed code for backwards compatibility for obsolete hash cache filename schemes (pre-2.10)
+    - try harder to catch rsync timeouts (also during connect time) (issue 12)
+    - fix FTP auth scanning
+    - fix mb db shell
+    - documentation enhancements
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed, 10 Feb 2010 23:43:00 +0100
+
+mirrorbrain (2.11.3-1) stable; urgency=low
+
+  - update to 2.11.3 (r7933):
+    * null-rsync:
+      - IO errors returned by rsync are handled now
+      - remote errors from rsync are ignored now
+    * mb db sizes:
+      - show sizes of tables from mod_stats
+    * mb db shell:
+      - fix resuming after command suspension
+    * mb list:
+      - new options -H, -F, -R to display HTTP/FTP/rsync base URLs
+    * mb mirrorlist:
+      - try harder to not leave temp files
+      - add a link to our project in the footer
+    Documentation changes:
+    - MirrorBrainFallback now documented in the example mod_mirrorbrain.conf
+    - -t 20 option removed from the mirrorprobe call, since it's the default now
+    - hint about ulimits has been removed, which turned out to be a band-aid
+      for a purely local problem.
+    - hint about loading a database dump with mb db shell added
+    Details: http://mirrorbrain.org/docs/changes/#release-2-11-3-r7933-dec-16-2009
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed, 16 Dec 2009 16:57:00 +0100
+
+mirrorbrain (2.11.2-1) stable; urgency=low
+
+  - update to 2.11.2 (r7917):
+    * mb scan:
+      - Improvements in scanning over FTP (missed mirrors in subdirectory scans; 
+        files with whitespace)
+    * mb db (new command for database maintenance tasks):
+      - mb db sizes - shows sizes of all relations
+      - mb db shell - conveniently open a shell for the database
+      - mb db vacuum - cleans up dead references (previously:
+        The previous command, "mb vacuum", continues to work for the reason of
+        backwards compatibility.
+    * mirrorprobe:
+      - default timeout lowered from 60s to 20s
+    Details: http://mirrorbrain.org/docs/changes/#release-2-11-2-r7917-dec-5-2009
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed,  5 Dec 2009 21:51:00 +0100
+
+mirrorbrain (2.11.1-1) stable; urgency=low
+
+- update to 2.11.1 (r7899):
+  * mod_mirrorbrain:
+    - the compile time detection for APR < 1.3 was fixed. This affected Debian 
+      and Ubuntu. Fixing issue #29.
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed,  3 Dec 2009 12:50:00 +0100
+
+mirrorbrain (2.11.0-2) stable; urgency=low
+
+  - update to 2.11.0 (r7896):
+    * mod_mirrorbrain:
+      - New feature: configure fallback mirrors via MirrorBrainFallback (see
+        release notes: http://mirrorbrain.org/docs/changes/#release-2-11-0-r7891-dec-2-2009
+      - use correct APR DBD API version semantics for row retrieval (issue #7)
+      - the obsolete MirrorBrainHandleDirectoryIndexLocally directive has been removed
+        (a warning issued where it is still found in the config)
+      - The default of MirrorBrainHandleHEADRequestLocally has been changed to "off".
+        This means in most cases, that the directive can be removed.
+    * The documentation for installation on Debian Lenny was tested and corrected
+      where needed. Credits to TheUni! 
+    * mb:
+      - Parse errors in the configuration file are not caught and and reported 
+        nicely.
+      - Special characters occurring in the configured password are escaped
+        before passing them to SQLObject/psycopg2, thus fixing issue #27. A
+        remaining issue is that double quotes can't be used... a warning is
+        issued if it's attempted.
+    * mb scan:
+      - A warning that appeared since the last release has been removed. It was
+        caused by the removal of obsolete code, and purely cosmetic.
+    * null-rsync:
+      - An --exclude commandline option has been implemented, to be passed
+        through to rsync.
+      - Control over the program output can now be exerted by the two new options
+        --quiet and --verbose.
+      - Usage info is implemented (--help etc.).
+      - Interruptions by Ctrl-C and similar signals are intercepted now.
+    * metalink-hasher
+      - When comparing the modification time of a saved metalink hash with that 
+        of a source file, the sub(sub-)second portion of the value could be
+        different from the value that has just been set by os.ulimit().  (Quite
+        surprisingly.) So now, we compare only the int() portion of the value.
+        This fixed issue #24. 
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed,  2 Dec 2009 04:34:00 +0100
+
+mirrorbrain (2.11.0-1) stable; urgency=low
+
+  - Debian/Ubuntu: add postinstall/postrm script that load/unloads
+    mod_mirrorbrain
+
+ -- Peter Poeml <poeml@cmdline.net>  Tue,  1 Dez 2009 23:57:00 +0100
+
+mirrorbrain (2.10.3-1) stable; urgency=low
+
+  - update to 2.10.3 (r7871):
+    * null-rsync:
+      - new script: special rsync wrapper which creates a local file tree from a
+        mirror, where all files contain only zeroes instead of real data. All
+        files are sparse, modification times and sizes are fully copied,
+        so that even (native) rsync thinks that the file tree is identical.
+    * mb new:
+      - when creating a new mirror, and detecting that the hostname resolved to
+        multiple addresses (round-robin DNS), a warning about this fact was issued.
+        Now, (short of documentaion in the manual) a reference to
+        http://mirrorbrain.org/archive/mirrorbrain/0042.html is added, where the
+        issue has been discussed in depth.
+      - A proper error message is now shown if an identifier is chosen that already
+        exists.
+    * mb mirrorlist / mb marker:
+      - The order in which mirrorlist columns are presented is now kept unchanged,
+        so it appears as it was entered into the database.
+      - The sort order of mirrorlist entries has been improved. Instead of the
+        priority, the mirror operator name is now given precendence in order, which
+        results in a mirror list that actually *looks* sorted.
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed, 28 Nov 2009 01:03:00 +0100
+
+mirrorbrain (2.10.2-1) stable; urgency=low
+
+  - update to 2.10.2 (r7853):
+    Bug fixes:
+    * When scanning a subdirectory, the mirror scanner (mb scan) could
+      accidentally delete files from the database outside of that directory. This
+      was caused by lack of terminatation (with a slash) of the path expression
+      that is used to grab the list of known files before the scan. Herewith
+      fixing issue #19.
+    * The mirrorprobe could crash when the sender domain of a configured mail log
+      handler wasn’t resolvable (issue #9). This has been fixed.
+    * A misleading error message in the mb tool was improved, which was issued
+      when encountering config file with missing sections.
+    The documentation was updated in various places. Debian/Ubuntu installation
+    instructions were added.
+
+ -- Peter Poeml <poeml@cmdline.net>  Wed,  4 Nov 2009 17:41:00 +0100
+
+mirrorbrain (2.10.1-5) stable; urgency=low
+
+  * add patch to mod_mirrorbrain.c for incompatibility with APR < 1.3 (issue #7)
+  * use Python 2.5 because python-sqlobject gives a deprecation warning with
+    Python 2.6 (which is the default Python on Ubuntu 9.04) (issue #6)
+  * patching is amateurishly done with sed from the rules file
+
+ -- Peter Poeml <poeml@cmdline.net>  Thu,  8 Oct 2009 09:21:00 +0200
+
+mirrorbrain (2.10.1-4) stable; urgency=low
+
+  * properly package the python module (python-mb subpackage)
+
+ -- Peter Poeml <poeml@cmdline.net>  Mon, 30 Sep 2009 14:53:00 +0200
+
+mirrorbrain (2.10.1-3) stable; urgency=low
+
+  * don't package scanner.pl twice (it didn't belong into the file list of mirrorbrain-tools)
+  * package the mb (mirrordoctor) script
+
+ -- Peter Poeml <poeml@cmdline.net>  Mon, 30 Sep 2009 09:41:00 +0200
+
+mirrorbrain (2.10.1-2) stable; urgency=low
+
+  * require python-cmdln, which is now packaged in the openSUSE buildservice
+  * fix dependency on libaprutil1-dbd-pgsql (it's not called libapr-util1-dbd-pgsql)
+
+ -- Peter Poeml <poeml@cmdline.net>  Mon, 30 Sep 2009 00:34:00 +0200
+
+mirrorbrain (2.10.1-1) stable; urgency=low
+
+  * Initial Release
+    There are things missing: example config files are not packaged, and
+    user/group isn't created yet. Dependencies are untested.
+
+ -- Peter Poeml <poeml@cmdline.net>  Mon, 28 Sep 2009 19:00:00 +0200
+

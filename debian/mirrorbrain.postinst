@@ -1,0 +1,32 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "configure" ]; then
+
+  #for conffile in dovecot.conf dovecot-ldap.conf dovecot-sql.conf ; do
+  #  # Tell ucf that the file in /usr/share/dovecot is the latest
+  #  # maintainer version, and let it handle how to manage the real
+  #  # configuration file in /etc/dovecot.
+  #  ucf --three-way /usr/share/dovecot/$conffile /etc/dovecot/$conffile
+  #  ucfr dovecot-common /etc/dovecot/$conffile
+  #  if [ "$conffile" != "dovecot.conf" ] && [ -f "/etc/dovecot/$conffile" ]; then
+  #    chmod 0600 /etc/dovecot/$conffile
+  #  fi
+  #done
+
+  if [ -z "`id -u mirrorbrain 2> /dev/null`" ]; then
+    /usr/sbin/groupadd -r mirrorbrain
+    /usr/sbin/useradd -r -m -g mirrorbrain -s /bin/bash -c "MirrorBrain user" -d /home/mirrorbrain mirrorbrain
+
+    #/usr/sbin/adduser --system --group --home /usr/lib/dovecot --gecos "Dovecot mail server" \
+    #                  --disabled-password --quiet dovecot || true
+  fi
+
+  # Fix permissions
+  chmod 750 /var/log/mirrorbrain
+  chgrp mirrorbrain /var/log/mirrorbrain
+  chown mirrorbrain /var/log/mirrorbrain
+
+fi
+
+#DEBHELPER#

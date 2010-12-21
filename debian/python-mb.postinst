@@ -1,0 +1,29 @@
+#!/bin/sh -e
+
+case "$1" in
+
+install)
+    ;;
+
+upgrade|configure)
+    # create missing database tables that are needed with 2.13.0 and later
+    if test -e /etc/mirrorbrain.conf && test -x /usr/bin/mb; then
+      echo "checking if new tables need to be added after upgrade"
+      mb > /dev/null
+    fi
+    :
+    ;;
+
+abort-upgrade)
+    ;;   
+
+*)
+    echo "preinst called with unknown argument '$1'" >&2
+    exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0
+

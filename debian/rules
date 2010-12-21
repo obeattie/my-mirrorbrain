@@ -1,0 +1,104 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE=1
+export DH_COMPAT=4
+export DH_OPTIONS=
+
+CFLAGS+=$(if $(findstring debug,$(DEB_BUILD_OPTIONS)),-g,)
+CFLAGS+=$(if $(findstring noopt,$(DEB_BUILD_OPTIONS)),-O0,-O2)
+APXS=/usr/bin/apxs2
+
+PYVERS=$(shell pyversions -vr)
+PKGDIR=$(CURDIR)/debian/python-mb
+
+
+build: build-stamp
+build-stamp: $(PYVERS:%=build-python%)
+	dh_testdir
+	cd mod_mirrorbrain && $(APXS) -c -Wc,"-Wall -g" -lm mod_mirrorbrain.c
+	cd mod_autoindex_mb && $(APXS) -c -Wc,"-Wall -g" mod_autoindex_mb.c
+	cd tools && gcc $(CFLAGS) -Wall -lGeoIP -o geoiplookup_continent geoiplookup_continent.c
+	cd tools && gcc $(CFLAGS) -Wall -lGeoIP -o geoiplookup_city geoiplookup_city.c
+	#
+	# Python 2.6 is the default python on Ubuntu 9.04; however, the
+	# sqlobject module gives a deprecation warning with it. Thus, use 2.5
+	# Ubuntu 10.04 doesn't have Python 2.5 any longer. Don't patch there.
+	# see http://mirrorbrain.org/issues/issue6
+	head -1 $(shell find mb -name mb.py; find mirrorprobe -name mirrorprobe.py)
+	case $(shell cut -d" " -f 2 /etc/issue) in \
+		*10.04*) \
+			echo nothing to patch \
+			;; \
+		*) \
+			echo patching Python scripts to force Python 2.5 being used; \
+			sed -i 's/^\(#!\/usr\/bin\/python\).*/\12.5/' $(shell find mb -name mb.py; find mirrorprobe -name mirrorprobe.py); \
+			;; \
+		esac
+	head -1 $(shell find mb -name mb.py; find mirrorprobe -name mirrorprobe.py)
+	#
+	touch $@
+
+build-python%: 
+	cd mb && python$* setup.py build
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean mod_mirrorbrain/.libs/* mod_mirrorbrain/*.{la,lo,slo} mod_autoindex_mb/.libs/* mod_autoindex_mb/*.{la,lo,slo} tools/geoiplookup_continent tools/geoiplookup_city build-stamp install-stamp $(PYVERS:%=install-python%) $(PYVERS:%=build-python%)
+	$(RM) -r .libs
+	$(RM) -rf mb.egg-info
+	find . -name '*\.pyc' -delete
+
+install: build install-stamp
+	echo $(CURDIR)
+	mkdir -p $(CURDIR)/debian/mirrorbrain/var/log/mirrorbrain
+	chmod 0750 $(CURDIR)/debian/mirrorbrain/var/log/mirrorbrain
+
+
+install-stamp: $(PYVERS:%=install-python%)
+	dh_install
+	#dh_testdir
+	#dh_testroot
+	#dh_clean -k
+	#dh_installdirs
+	touch $@
+	
+
+install-python%: build
+	cd mb && python$* setup.py install \
+		--skip-build --prefix=/usr --root $(PKGDIR)
+	# FIXME: this script is python independent, and is already in the mirrorbrain-tools package.
+	# that it is installed here also is ugly, and that we simply remove it
+	# to exclude it from the python-mb package is ugly too
+	#$(RM) -rv $(PKGDIR)/usr/bin
+	touch $@
+
+#binary-indep: DH_OPTIONS=-i
+binary-indep: build install
+
+#binary-arch: DH_OPTIONS=-a
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installchangelogs
+	dh_installexamples
+	dh_makeshlibs -a
+	dh_pysupport -a
+	dh_strip -ppython-mb
+	dh_compress -a -X.py
+	dh_link
+	dh_install
+	dh_installdeb -a
+	dh_fixperms -a -Xvar/log/mirrorbrain
+	dh_shlibdeps
+	dh_compress
+	dh_strip
+	dh_md5sums
+	dh_gencontrol
+	dh_builddeb
+
+binary: binary-indep binary-arch
+
+.PHONY: binary binary-arch binary-indep clean install build

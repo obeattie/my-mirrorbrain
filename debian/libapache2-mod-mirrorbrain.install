@@ -1,0 +1,2 @@
+mod_mirrorbrain/.libs/mod_mirrorbrain.so	usr/lib/apache2/modules
+debian/mirrorbrain.load				etc/apache2/mods-available

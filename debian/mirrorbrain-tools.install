@@ -1,0 +1,16 @@
+tools/geoiplookup_continent	usr/bin
+tools/geoiplookup_city		usr/bin
+tools/rsyncinfo			usr/bin
+tools/rsyncusers		usr/bin
+tools/bdecode			usr/bin
+tools/metalink-hasher.py	usr/bin
+tools/geoip-lite-update		usr/bin
+tools/create_timestamp		usr/bin
+tools/null-rsync		usr/bin
+mirrorprobe/mirrorprobe.py  	usr/bin
+
+usr/lib/python*
+usr/local/lib/python*	
+
+mb/famfamfam_flag_icons	usr/share/mirrorbrain/
+

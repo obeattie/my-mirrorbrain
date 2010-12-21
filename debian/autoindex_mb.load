@@ -1,0 +1,1 @@
+LoadModule autoindex_mb_module /usr/lib/apache2/modules/mod_autoindex_mb.so

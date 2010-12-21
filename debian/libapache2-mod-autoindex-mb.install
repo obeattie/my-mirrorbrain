@@ -1,0 +1,2 @@
+mod_autoindex_mb/.libs/mod_autoindex_mb.so	usr/lib/apache2/modules
+debian/autoindex_mb.load			etc/apache2/mods-available

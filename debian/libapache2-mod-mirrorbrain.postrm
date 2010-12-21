@@ -1,0 +1,25 @@
+#! /bin/sh
+
+# Script adapted from Alberto Gonzalez Iniesta's package libapache-mod-dosevasive
+# Abort if any command returns an error value
+set -e
+
+case "$1" in
+  remove)
+		a2dismod mirrorbrain
+    :
+    ;;
+  purge | disappear | upgrade | failed-upgrade | abort-upgrade)
+    :
+    ;;
+  abort-install)
+		a2dismod mirrorbrain
+    :
+	;;
+  *) echo "$0: didn't understand being called with \`$1'" 1>&2
+     exit 1;;
+esac
+
+#DEBHELPER#
+
+exit 0
