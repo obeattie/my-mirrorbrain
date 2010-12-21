@@ -13,8 +13,9 @@ XS-Python-Version: >= 2.4
 
 Package: mirrorbrain
 Architecture: any
-Depends: ${shlibs:depends}, adduser
-Description: MirrorBrain is a scalable download redirector and Metalink generator.
+Depends: ${shlibs:depends}, ${misc:Depends}, adduser
+XB-Python-Version: ${python:Versions}
+Description: A scalable download redirector and Metalink generator.
  .
  MirrorBrain is an open source framework to run a content delivery network using
  mirror servers. It solves a challenge that many popular open source projects
@@ -31,21 +32,21 @@ Description: MirrorBrain is a scalable download redirector and Metalink generato
  sophisticated and easy to control and tune. In addition, MirrorBrain monitors
  mirrors, scans them for files, generates mirror lists, and more.
  .
- This package contains files needed by the subpackges, documentation, and the
+ This package contains files needed by the subpacakges, documentation, and the
  database schema.
 
 Package: libapache2-mod-mirrorbrain
 Architecture: any
-Depends: ${shlibs:depends}, apache2.2-common, libapache2-mod-form, libapache2-mod-geoip, libgeoip-dev, libaprutil1-dbd-pgsql
-Description: MirrorBrain is a scalable download redirector and Metalink generator.
+Depends: ${shlibs:depends}, ${misc:Depends}, apache2.2-common, libapache2-mod-form, libapache2-mod-geoip, libgeoip-dev, libaprutil1-dbd-pgsql, mirrorbrain
+Description: A scalable download redirector and Metalink generator.
  .
  This package contains mod_mirrorbrain, the Apache module which represents the
  core of MirrorBrain.
 
 Package: libapache2-mod-autoindex-mb
 Architecture: any
-Depends: ${shlibs:depends}, apache2.2-common, libapache2-mod-mirrorbrain
-Description: MirrorBrain is a scalable download redirector and Metalink generator.
+Depends: ${shlibs:depends}, ${misc:Depends}, apache2.2-common, libapache2-mod-mirrorbrain
+Description: A scalable download redirector and Metalink generator.
  .
  This package contains mod_autoindex_mb, which is a patched mod_autoindex. It
  adds a little further capability as index option.
@@ -64,28 +65,25 @@ Description: MirrorBrain is a scalable download redirector and Metalink generato
 
 Package: mirrorbrain-tools
 Architecture: any
-Depends: ${python:Depends}, python-psycopg2, python-sqlobject, geoip-bin, python-cmdln, python-mb (>=2.13.0)
-Description: MirrorBrain is a scalable download redirector and Metalink generator.
+Depends: ${python:Depends}, ${misc:Depends}, python-psycopg2, python-sqlobject, geoip-bin, python-cmdln, python-mb (>=2.13.0)
+Description: A scalable download redirector and Metalink generator.
  .
  This package contains the commandline tools provided by the MirrorBrain
  framework to maintain the database and scan mirrors.
 
 Package: python-mb
 Architecture: any
-# the dependency on python2.5 is added here due to http://mirrorbrain.org/issues/issue6
-Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
-# python-processing is no longer a package on e.g. Ubuntu 10.04, and not needed, since 
-# the multiprocessing module is on board
-Recommends: python-processing
+Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}, mirrorbrain, python-cmdln
+Recommends: python-multiprocessing | python-processing
 Provides: ${python:Provides}
 Breaks: mirrorbrain-tools (<<2.13.0)
 Replaces: mirrorbrain-tools (<<2.13.0)
 XB-Python-Version: ${python:Versions}
-Description: a Python module for easily maintaining MirrorBrain 
+Description: A Python module for easily maintaining MirrorBrain.
 
 Package: mirrorbrain-scanner
 Architecture: any
-Depends: libconfig-inifiles-perl, libwww-perl, libdbd-pg-perl, libdatetime-perl, libtimedate-perl, libdigest-md4-perl
-Description: MirrorBrain is a scalable download redirector and Metalink generator.
+Depends: ${shlibs:Depends}, ${misc:Depends}, libconfig-inifiles-perl, libwww-perl, libdbd-pg-perl, libdatetime-perl, libtimedate-perl, libdigest-md4-perl, mirrorbrain
+Description: A scalable download redirector and Metalink generator.
  .
  This package contains the mirror scanner.
